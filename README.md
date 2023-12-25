@@ -20,7 +20,7 @@ Time operations are performed in the `DateTime` class.
 Only ISO-8601 Extended format (YYYYY-MM-DDThh:mm:ss.ssss±hh:mm) is supported as input format.
 However, the following degrees of freedom are available.
 
-1. Any single letter may be used for `T` in `<date>T<time>``.
+1. Any single letter may be used for `T` in `<date>T<time>`.
 1. There is no restriction on the length of the decimal part `.ssss` only the integer part `ss` is acceptable.
 1. If time zone `±hh:mm` is not specified or `Z` is used, it is treated as UTC+0.
 
@@ -45,7 +45,7 @@ Other conversions to Greenwich sidereal time, local sidereal time, and earth tim
 
 ### 2.2 Arithmetic evaluation
 
-Arithmetic operations on time are performed using the dedicated `addXXX`` member function or the `TimeSpan` class.
+Arithmetic operations on time are performed using the dedicated `addXXX` member function or the `TimeSpan` class.
 Standard arithmetic, relational, and equality operators are supported.
 
 ```C++
@@ -96,7 +96,7 @@ std::cout << Angle::acos(0.5).degrees() << std::endl;
 ### 4. Magnetic flux density calculation of the earth's magnetic field
 
 The `Igrf` class can calculate the magnetic flux density of the earth's magnetic field using the IGRF-13 model.
-The ECEF Cartesian coordinate system and the WGS84 rotational ellipsoid coordinate system can be used as position information.
+The Geocentric (ECEF) cartesian coordinate system and the Geodetic (WGS84) ellipsoid coordinate system can be used as position information.
 
 The output flux density vector is in the NED coordinate system and the unit is `T`.
 
@@ -109,9 +109,8 @@ std::cout << igrf(position.toEcef()).transpose() << std::endl;
 
 # Reference
 
-https://www.ncei.noaa.gov/services/world-data-system/v-mod-working-group
-https://www.ncei.noaa.gov/products/international-geomagnetic-reference-field/health-warning
-https://earth-planets-space.springeropen.com/articles/10.1186/s40623-020-01288-x
+1. [National Centers for Environmental Information (NCEI) - NOAA, V-MOD Working Group](https://www.ncei.noaa.gov/services/world-data-system/v-mod-working-group)
+1. [Alken, Patrick, et al. "International geomagnetic reference field: the thirteenth generation." Earth, Planets and Space 73.1 (2021): 1-25.](https://earth-planets-space.springeropen.com/articles/10.1186/s40623-020-01288-x)
 
 
 # License
