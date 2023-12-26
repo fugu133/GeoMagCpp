@@ -46,7 +46,7 @@
 #define GEOMAG_REQUEST_VERSION_CHECK(major, minor, patch) \
 	(GEOMAG_VERSION_MAJOR >= major && GEOMAG_VERSION_MINOR >= minor && GEOMAG_VERSION_PATCH >= patch)
 
-#define GEOMAG_REQUEST_VERSION_ASSERTION_MSG_STR(major, minor, patch) "KOYOH-ACS-DataConverter-Lib must be has version higher than " GEOMAG_TO_STRING(GEOMAG_VERSION_CONCAT(major, minor, patch))
+#define GEOMAG_REQUEST_VERSION_ASSERTION_MSG_STR(major, minor, patch) "GeMag-Lib must be has version higher than " GEOMAG_TO_STRING(GEOMAG_VERSION_CONCAT(major, minor, patch))
 
 #ifndef GEOMAG_NO_ASSERTION
 #define GEOMAG_ASSRET_CONVERTER_REQUEST_VERSION(major, minor, patch) \
