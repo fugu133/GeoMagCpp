@@ -297,25 +297,15 @@ class DateTime {
 		const double T = (j2000() + delta_time.totalDays()) / constant::jd_century; // Julian centuries since J2000
 		const double L0 = AngleHelper::degreeToWrapRadian(Polynomial::deg2(T, 280.46646, 36000.76983, 0.0003032)); // Mean longitude
 		const double M = AngleHelper::degreeToWrapRadian(Polynomial::deg2(T, 357.52911, 35999.05029, -0.0001537)); // Mean anomaly
-		const double e = Polynomial::deg2(T, 0.016708634, -0.000042037, -0.0000001267);							   // Eccentricity
-
-		// const double omega = L0 - M;
-
-		// const double E = M + e * std::sin(M) * (1 + e * std::cos(M));
-		// const double nu = AngleHelper::wrapRadian(std::atan2(std::sin(E) * std::sqrt(1 - e * e), std::cos(E) - e));
-		// const double L = AngleHelper::wrapRadian(nu + omega);
-
 		const double C =
 		  AngleHelper::degreeToWrapRadian((Polynomial::deg2(T, 1.914602, 0.004817, 0.000014) * std::sin(M) +
 										   (0.019993 - T * 0.000101) * std::sin(2 * M) + 0.000289 * std::sin(3 * M))); // Equation of center
-		const double true_lon = AngleHelper::wrapRadian(L0 + C);													   // True longitude
-		const double nu = AngleHelper::wrapRadian(M + C);															   // True anomaly
-		const double R = constant::au * (1.000001018 * (1 - e * e) / (1 + e * std::cos(nu))); // Distance correction
-		const double Omega = AngleHelper::degreeToWrapRadian(125.04 - 1934.136 * T);		  // Longitude of ascending node
-		const double L =
-		  AngleHelper::wrapRadian(true_lon - AngleHelper::degreeToRadian(0.00569 - 0.00478 * std::sin(Omega))); // Apparent longitude
+		const double Lt = AngleHelper::wrapRadian(L0 + C);													   // True longitude
+		const double omega = AngleHelper::degreeToWrapRadian(125.04 - 1934.136 * T);		  // Longitude of ascending node
+		const double La =
+		  AngleHelper::wrapRadian(Lt - AngleHelper::degreeToRadian(0.00569 - 0.00478 * std::sin(omega))); // Apparent longitude
 
-		return Degree{-1.91466647 * std::sin(M) - 0.019994643 * std::sin(2 * M) + 2.466 * std::sin(2 * L) - 0.0053 * sin(4 * L)};
+		return Degree{-1.91466647 * std::sin(M) - 0.019994643 * std::sin(2 * M) + 2.466 * std::sin(2 * La) - 0.0053 * sin(4 * La)};
 	}
 
 	/**
