@@ -1,10 +1,11 @@
 {
 	"folders": [
 		{
-			"path": ".."
+			"path": "."
 		}
 	],
 	"settings": {
+		"editor.formatOnSave": true,
 		"files.associations": {
 			"array": "cpp",
 			"atomic": "cpp",
@@ -65,7 +66,9 @@
 			"stop_token": "cpp",
 			"streambuf": "cpp",
 			"thread": "cpp",
-			"typeinfo": "cpp"
+			"typeinfo": "cpp",
+			"optional": "cpp",
+			"ranges": "cpp"
 		}
 	}
 }

@@ -31,7 +31,7 @@ enum class CoordinateType {
 	EclipticCartesian,	 // Ecliptic Cartesian
 	EquatorialSpherical, // Equatorial Spherical
 	EquatorialCartesian, // Equatorial Cartesian
-	Topocentric 		 // Topocentric (Azimuth, Elevation, Range)
+	Topocentric			 // Topocentric (Azimuth, Elevation, Range)
 };
 
 template <class DataType>
@@ -151,8 +151,8 @@ class GeocentricSpherical : public CoordinateBase<GeocentricSphericalPosition> {
 
 	std::string toString() const override {
 		std::stringstream ss;
-		ss << "GeocentricSpherical(t = " << m_epoch.toString() << ", Lon = " << m_data.longitude.degrees() << " [deg], Lat = "
-		   << m_data.latitude.degrees() << " [deg], Alt = " << m_data.altitude << " [m])";
+		ss << "GeocentricSpherical(t = " << m_epoch.toString() << ", Lon = " << m_data.longitude.degrees()
+		   << " [deg], Lat = " << m_data.latitude.degrees() << " [deg], Alt = " << m_data.altitude << " [m])";
 		return ss.str();
 	}
 
@@ -428,7 +428,7 @@ inline Ecef Wgs84::toEcef() const {
 	const double sin_theta = m_data.longitude.sin();
 	const double N = a / std::sqrt(1 - e2 * sin_phi * sin_phi);
 	const double x = (N + m_data.altitude) * cos_phi * cos_theta;
-	const double y = (N + m_data.altitude) * cos_phi *sin_theta;
+	const double y = (N + m_data.altitude) * cos_phi * sin_theta;
 	const double z = (N * (1 - e2) + m_data.altitude) * sin_phi;
 	return Ecef(m_epoch, Eigen::Vector3d{x, y, z});
 }

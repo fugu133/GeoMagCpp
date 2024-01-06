@@ -288,6 +288,70 @@ class DateTime {
 	}
 
 	/**
+	 * @brief 均時差を取得する
+	 * @param delta_time ΔT
+	 * @remark (平均 7 sec程の誤差あり)
+	 *
+	 */
+	auto equationOfTime(const TimeSpan delta_time) const -> Angle {
+		const double T = (j2000() + delta_time.totalDays()) / constant::jd_century; // Julian centuries since J2000
+		const double L0 = AngleHelper::degreeToWrapRadian(Polynomial::deg2(T, 280.46646, 36000.76983, 0.0003032)); // Mean longitude
+		const double M = AngleHelper::degreeToWrapRadian(Polynomial::deg2(T, 357.52911, 35999.05029, -0.0001537)); // Mean anomaly
+		const double C =
+		  AngleHelper::degreeToWrapRadian((Polynomial::deg2(T, 1.914602, 0.004817, 0.000014) * std::sin(M) +
+										   (0.019993 - T * 0.000101) * std::sin(2 * M) + 0.000289 * std::sin(3 * M))); // Equation of center
+		const double Lt = AngleHelper::wrapRadian(L0 + C);													   // True longitude
+		const double omega = AngleHelper::degreeToWrapRadian(125.04 - 1934.136 * T);		  // Longitude of ascending node
+		const double La =
+		  AngleHelper::wrapRadian(Lt - AngleHelper::degreeToRadian(0.00569 - 0.00478 * std::sin(omega))); // Apparent longitude
+
+		return Degree{-1.91466647 * std::sin(M) - 0.019994643 * std::sin(2 * M) + 2.466 * std::sin(2 * La) - 0.0053 * sin(4 * La)};
+	}
+
+	/**
+	 * @brief 均時差を取得する
+	 * @remark (平均 7 sec程の誤差あり)
+	 *
+	 */
+	auto equationOfTime() -> Angle { return equationOfTime(deltaT()); }
+
+	/**
+	 * @brief グリニッジ太陽時を取得する
+	 *
+	 * @param delta_time ΔT
+	 * @return Angle グリニッジ太陽時
+	 */
+	auto greenwichSolarTime(const TimeSpan delta_time) const -> Angle {
+		return HourAngle{secondsOfDay() / constant::seconds_per_hour + equationOfTime(delta_time).hours()}.normalized();
+	};
+
+	/**
+	 * @brief グリニッジ太陽時を取得する
+	 *
+	 * @return Angle グリニッジ太陽時
+	 */
+	auto greenwichSolarTime() -> Angle { return greenwichSolarTime(deltaT()); }
+
+	/**
+	 * @brief 地方太陽時を取得する
+	 *
+	 * @param longitude 経度
+	 * @param delta_time ΔT
+	 * @return Angle 地方太陽時
+	 */
+	auto localSolarTime(const Angle& longitude, const TimeSpan delta_time) const -> Angle {
+		return (greenwichSolarTime(delta_time) + longitude).normalized();
+	}
+
+	/**
+	 * @brief 地方太陽時を取得する
+	 *
+	 * @param longitude 経度
+	 * @return Angle 地方太陽時
+	 */
+	auto localSolarTime(const Angle& longitude) -> Angle { return localSolarTime(longitude, deltaT()); }
+
+	/**
 	 * @brief ISO8601形式文字列に変換する
 	 *
 	 * @return std::string ISO8601形式文字列
@@ -342,6 +406,18 @@ class DateTime {
 	auto addTicks(const std::int64_t ticks) -> DateTime { return DateTime{m_ticks + ticks}; }
 
 	friend auto operator<<(std::ostream& os, const DateTime& dt) -> std::ostream& { return os << dt.toString(); }
+
+	int dayOfYear() const {
+		int year, month, day;
+		pushDate(year, month, day);
+		return dayOfYear(year, month, day);
+	}
+
+	double secondsOfDay() const { return TimeSpan(m_ticks % constant::ticks_per_day).totalSeconds(); }
+
+	static DateTime max() { return DateTime(std::numeric_limits<std::int64_t>::max()); }
+
+	static DateTime min() { return DateTime(0); }
 
   private:
 	std::int64_t m_ticks;
@@ -494,36 +570,40 @@ class DateTime {
 		year = iso8601BlocktoInt(date_time, 0, 4);
 		month = iso8601BlocktoInt(date_time, 5, 7);
 		day = iso8601BlocktoInt(date_time, 8, 10);
-		hour = iso8601BlocktoInt(date_time, 11, 13);
-		minute = iso8601BlocktoInt(date_time, 14, 16);
-
-		std::string sec_tz = date_time.substr(17);
-
-		// タイムゾーンの位置を探す
-		std::size_t tz_pos = 0;
-		while (tz_pos < sec_tz.length()) {
-			if (sec_tz[tz_pos] == 'Z' || sec_tz[tz_pos] == '+' || sec_tz[tz_pos] == '-') {
-				break;
-			}
-			tz_pos++;
-		}
-
-		iso8601BlocktoDecimal(sec_tz, 0, tz_pos - 1, second, microsecond);
-
-		if (tz_pos == sec_tz.length()) {
-			initialize(year, month, day, hour, minute, second, microsecond);
+		if (date_time.length() <= 10) {
+			initialize(year, month, day, 0, 0, 0, 0);
 		} else {
-			std::string tz = sec_tz.substr(tz_pos);
-			if (tz[0] == 'Z' || tz == "+00:00" || tz == "-00:00" || tz == "UTC" || tz == "GMT") {
+			hour = iso8601BlocktoInt(date_time, 11, 13);
+			minute = iso8601BlocktoInt(date_time, 14, 16);
+
+			std::string sec_tz = date_time.substr(17);
+
+			// タイムゾーンの位置を探す
+			std::size_t tz_pos = 0;
+			while (tz_pos < sec_tz.length()) {
+				if (sec_tz[tz_pos] == 'Z' || sec_tz[tz_pos] == '+' || sec_tz[tz_pos] == '-') {
+					break;
+				}
+				tz_pos++;
+			}
+
+			iso8601BlocktoDecimal(sec_tz, 0, tz_pos - 1, second, microsecond);
+
+			if (tz_pos == sec_tz.length()) {
 				initialize(year, month, day, hour, minute, second, microsecond);
 			} else {
-				int tz_hour = iso8601BlocktoInt(tz, 1, 3);
-				int tz_minute = iso8601BlocktoInt(tz, 4, 6);
-				initialize(year, month, day, hour, minute, second, microsecond);
-				if (tz[0] == '-') {
-					m_ticks += TimeSpan(tz_hour, tz_minute, 0).ticks();
+				std::string tz = sec_tz.substr(tz_pos);
+				if (tz[0] == 'Z' || tz == "+00:00" || tz == "-00:00" || tz == "UTC" || tz == "GMT") {
+					initialize(year, month, day, hour, minute, second, microsecond);
 				} else {
-					m_ticks -= TimeSpan(tz_hour, tz_minute, 0).ticks();
+					int tz_hour = iso8601BlocktoInt(tz, 1, 3);
+					int tz_minute = iso8601BlocktoInt(tz, 4, 6);
+					initialize(year, month, day, hour, minute, second, microsecond);
+					if (tz[0] == '-') {
+						m_ticks += TimeSpan(tz_hour, tz_minute, 0).ticks();
+					} else {
+						m_ticks -= TimeSpan(tz_hour, tz_minute, 0).ticks();
+					}
 				}
 			}
 		}
