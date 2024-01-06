@@ -20,6 +20,7 @@ Time operations are performed in the `DateTime` class.
 Only ISO-8601 Extended format (YYYYY-MM-DDThh:mm:ss.ssss±hh:mm) is supported as input format.
 However, the following degrees of freedom are available.
 
+1. If only `YYYYY-MM-DD` is used, it is interpreted as `YYYYY-MM-DDT00:00:00`.
 1. Any single letter may be used for `T` in `<date>T<time>`.
 1. There is no restriction on the length of the decimal part `.ssss` only the integer part `ss` is acceptable.
 1. If time zone `±hh:mm` is not specified or `Z` is used, it is treated as UTC+0.
@@ -95,16 +96,16 @@ std::cout << Angle::acos(0.5).degrees() << std::endl;
 
 ### 4. Magnetic flux density calculation of the earth's magnetic field
 
-The `Igrf` class can calculate the magnetic flux density of the earth's magnetic field using the IGRF-13 model.
+The `GeoMagFlux` class can calculate the magnetic flux density of the earth's magnetic field using the IGRF-13 model.
 The Geocentric (ECEF) cartesian coordinate system and the Geodetic (WGS84) ellipsoid coordinate system can be used as position information.
 
 The output flux density vector is in the NED coordinate system and the unit is `T`.
 
 ```C++
-Igrf igrf;
+GeoMagFlux gmag;
 auto position = Wgs84{DateTime::now(), Degree{135}, Degree{35}, 500e3};
-std::cout << igrf(position).transpose() << std::endl;
-std::cout << igrf(position.toEcef()).transpose() << std::endl;
+std::cout << gmag(position).transpose() << std::endl;
+std::cout << gmag(position.toEcef()).transpose() << std::endl;
 ```
 
 # Reference
@@ -140,4 +141,4 @@ SOFTWARE.
 
 # SpecialThanks
 
-Some linear algebra operations use [`Eigen`](https://eigen.tuxfamily.org/index.php?title=Main_Page).
+Some linear algebra operations use [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page).
