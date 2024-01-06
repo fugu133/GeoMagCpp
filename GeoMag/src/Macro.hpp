@@ -12,7 +12,7 @@
 // clang-format off
 #define GEOMAG_VERSION_MAJOR 1
 #define GEOMAG_VERSION_MINOR 0
-#define GEOMAG_VERSION_PATCH 0
+#define GEOMAG_VERSION_PATCH 1
 
 #define GEOMAG_TO_STRING_EX(x) #x
 #define GEOMAG_TO_STRING(x) GEOMAG_TO_STRING_EX(x)
