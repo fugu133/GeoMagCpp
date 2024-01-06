@@ -12,4 +12,4 @@
 #pragma once
 
 #include "src/Essential.hpp"
-#include "src/Igrf.hpp"
+#include "src/GeoMagFlux.hpp"
