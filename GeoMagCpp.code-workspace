@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
+		"editor.formatOnSave": true,
 		"files.associations": {
 			"array": "cpp",
 			"atomic": "cpp",
